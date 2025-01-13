@@ -76,7 +76,7 @@ const DataTable = () => {
                 <label htmlFor="descOfTask">Task Description:</label>
                 <input className="custom-input" type="text" id="descOfTask" onChange={(e) => setDescOfTask(e.target.value)} value={descOfTask} />
                 <label htmlFor="time">Time:</label>
-                <input className="custom-input" type="number" id="time" onChange={(e) => setTime(e.target.value)} value={time} />
+                <input className="custom-input" type="time" id="time" onChange={(e) => setTime(e.target.value)} value={time} />
                 <div className="btnClass">
                     <button onClick={(e) => handleSave(e)} style={{ background: '#5ee35e' }}>ADD</button>
                     <button onClick={Onclear} style={{ background: '#6969e6' }}>Cancel</button>
