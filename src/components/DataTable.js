@@ -6,6 +6,8 @@ const DataTable = () => {
     const [descOfTask, setDescOfTask] = useState("");
     const [time, setTime] = useState("");
     const [bioData, setBioData] = useState([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editTaskId, setEditTaskId] = useState(null);
 
     useEffect(() => {
         const savedTasks = JSON.parse(localStorage.getItem("tasks"));
@@ -24,6 +26,8 @@ const DataTable = () => {
         setNameOfTask("");
         setDescOfTask("");
         setTime("");
+        setIsEditing(false);  // Reset editing mode
+        setEditTaskId(null);  // Reset the task id when clearing
     };
 
     const onDelete = (id) => {
@@ -44,13 +48,23 @@ const DataTable = () => {
         if (error === '') {
             e.preventDefault();
             const newObject = {
-                id: generateUniqueId(),
+                id: isEditing ? editTaskId : generateUniqueId(),
                 nameOfTask,
                 descOfTask,
                 time,
                 completed: false,
             };
-            setBioData([...bioData, newObject]);
+
+            if (isEditing) {
+                // Edit existing task
+                setBioData(bioData.map((task) => 
+                    task.id === editTaskId ? newObject : task
+                ));
+            } else {
+                // Add new task
+                setBioData([...bioData, newObject]);
+            }
+
             Onclear();
         } else {
             alert(error);
@@ -67,10 +81,18 @@ const DataTable = () => {
     const pendingCount = bioData.filter((task) => !task.completed).length;
     const completedCount = bioData.filter((task) => task.completed).length;
 
+    const handleEdit = (task) => {
+        setNameOfTask(task.nameOfTask);
+        setDescOfTask(task.descOfTask);
+        setTime(task.time);
+        setIsEditing(true);
+        setEditTaskId(task.id);
+    };
+
     return (
         <div className="main-container">
             <div className="editBox">
-                <h1>Add Task</h1>
+                <h1>{isEditing ? 'Edit Task' : 'Add Task'}</h1>
                 <label htmlFor="nameOfTask">Task Name:</label>
                 <input className="custom-input" type="text" id="nameOfTask" onChange={(e) => setNameOfTask(e.target.value)} value={nameOfTask} />
                 <label htmlFor="descOfTask">Task Description:</label>
@@ -78,7 +100,7 @@ const DataTable = () => {
                 <label htmlFor="time">Time:</label>
                 <input className="custom-input" type="time" id="time" onChange={(e) => setTime(e.target.value)} value={time} />
                 <div className="btnClass">
-                    <button onClick={(e) => handleSave(e)} style={{ background: '#5ee35e' }}>ADD</button>
+                    <button onClick={(e) => handleSave(e)} style={{ background: '#5ee35e' }}>{isEditing ? 'Save Changes' : 'ADD'}</button>
                     <button onClick={Onclear} style={{ background: '#6969e6' }}>Cancel</button>
                 </div>
             </div>
@@ -93,6 +115,7 @@ const DataTable = () => {
                                 <th>Task Name</th>
                                 <th>Task Description</th>
                                 <th>Time</th>
+                                <th>Edit</th>
                                 <th>Delete</th>
                             </tr>
                         </thead>
@@ -106,6 +129,9 @@ const DataTable = () => {
                                     <td style={{ textDecoration: val.completed ? "line-through" : "none" }}>{val.nameOfTask}</td>
                                     <td style={{ textDecoration: val.completed ? "line-through" : "none" }}>{val.descOfTask}</td>
                                     <td style={{ textDecoration: val.completed ? "line-through" : "none" }}>{val.time}</td>
+                                    <td>
+                                        <button style={{ background: '#ffcc00' }} onClick={() => handleEdit(val)}>Edit</button>
+                                    </td>
                                     <td>
                                         <button style={{ background: 'red' }} onClick={() => onDelete(val.id)}>Delete</button>
                                     </td>
